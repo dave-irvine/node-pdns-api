@@ -1,0 +1,20 @@
+{
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "quotes": [2, "single"],
+    "no-shadow": 0,
+    "no-unused-vars": 0
+  },
+  "ecmaFeatures": {
+    "arrowFunctions": true,
+    "blockBindings": true,
+    "classes": true,
+    "modules": true,
+    "templateStrings": true,
+    "objectLiteralShorthandProperties": true
+  },
+  "globals": {
+  }
+}
