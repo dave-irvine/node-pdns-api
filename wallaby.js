@@ -10,7 +10,7 @@ module.exports = function (wallaby) {
             'test/**/*.test.js'
         ],
         compilers: {
-            '**/*.js': wallaby.compilers.babel({
+            'test/**/*.js': wallaby.compilers.babel({
                 babel: babel,
                 presets: ['es2015'],
                 plugins: ['transform-runtime']
