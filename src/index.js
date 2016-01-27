@@ -1,11 +1,9 @@
-import Connection from './Connection';
+let Connection = require('./Connection');
 
-export default {
+let root = {
     createConnection: (config) => {
-        if (!config) {
-            throw new Error('Configuration object is required.');
-        }
-
         return new Connection(config);
     }
 };
+
+module.exports = root;
