@@ -4,6 +4,9 @@
   "description": "Connect to PowerDNS' JSON API",
   "main": "index.js",
   "scripts": {
+    "prepublish": "npm test && git diff --exit-code --quiet",
+    "preversion": "npm test && git diff --exit-code --quiet",
+    "postversion": "git push && git push --tags",
     "build": "babel -d lib src",
     "pretest": "eslint src/ && npm run build",
     "test": "mocha --compilers js:babel-core/register"
@@ -42,5 +45,6 @@
   "bugs": {
     "url": "https://github.com/dave-irvine/node-pdns-api/issues"
   },
-  "homepage": "https://github.com/dave-irvine/node-pdns-api"
+  "homepage": "https://github.com/dave-irvine/node-pdns-api",
+  "private": true
 }
