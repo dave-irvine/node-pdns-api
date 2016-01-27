@@ -28,7 +28,9 @@ class Connection {
             throw new Error(`Configuration failed validation: \n\n${result.format()}`);
         }
 
+        this.config = config;
         this.connected = false;
+        this.baseURL = `${this.config.protocol}://${this.config.host}:${this.config.port}`;
         this.zones = new Zones(this);
         this.records = new Records(this);
     }
