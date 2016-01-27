@@ -192,4 +192,104 @@ describe('Connection', () => {
             return expect(connection).to.have.property('records');
         });
     });
+
+    describe('connect()', () => {
+        const configuration = {
+            'host': 'abc',
+            'port': 8080,
+            'protocol': 'http',
+            'key': 'abcd'
+        };
+
+        let connection,
+            requestStub,
+            validServer;
+
+        before(() => {
+            requestStub = sinon.stub();
+
+            Connection = proxyquire('../lib/Connection', {
+                'request': requestStub
+            });
+
+            validServer = {
+                'type': 'Server',
+                'id': 'localhost',
+                'url': '/servers/localhost',
+                'daemon_type': 'authoritative',
+                'version': '3.4.7',
+                'config_url': '/servers/localhost/config{/config_setting}',
+                'zones_url': '/servers/localhost/zones{/zone}'
+            }
+        });
+
+        beforeEach(() => {
+            connection = new Connection(configuration);
+        });
+
+        it('should return a Promise', () => {
+            return expect(connection.connect()).to.be.an.instanceOf(Promise);
+        });
+
+        it('should use the configured `key` for Authentication', () => {
+            let expectedAuthHeader = configuration.key;
+            requestStub.yields(null, null, [validServer]);
+
+            return connection.connect()
+            .then(() => {
+                return expect(requestStub).to.have.been.calledWith(sinon.match({
+                    headers: sinon.match({
+                        'X-API-Key': expectedAuthHeader
+                    })
+                }));
+            });
+        });
+
+        it('should reject if Authentication fails', () => {
+            requestStub.yields(true, { statusCode: 401 }, null);
+
+            return expect(connection.connect()).to.eventually.be.rejectedWith('Unauthorised');
+        });
+
+        it('should connect to `/servers` endpoint to fetch server configuration', () => {
+            let expectedURL = `${configuration.protocol}://${configuration.host}:${configuration.port}/servers`;
+            requestStub.yields(null, null, [validServer]);
+
+            return connection.connect()
+            .then(() => {
+                return expect(requestStub).to.have.been.calledWith(sinon.match({
+                    url: expectedURL
+                }));
+            });
+        });
+
+        it('should reject if connecting fails', () => {
+            let err = new Error('connect ECONNREFUSED');
+            err.code = 'ECONNREFUSED';
+
+            requestStub.yields(err, null, null);
+
+            return expect(connection.connect()).to.eventually.be.rejectedWith(err);
+        });
+
+        it('should reject if the server connected to does not return an expected result', () => {
+            requestStub.yields(null, null, null);
+
+            return expect(connection.connect()).to.eventually.be.rejectedWith('API returned invalid results');
+        });
+
+        it('should store the zones url for the connected server', () => {
+            let expectedZonesURL = 'abcd';
+
+            validServer.zones_url = expectedZonesURL;
+            requestStub.yields(null, null, [
+                validServer
+            ]);
+
+            return connection.connect()
+            .then(() => {
+                return expect(connection.zones_url).to.equal(expectedZonesURL);
+            });
+        });
+    });
 });
