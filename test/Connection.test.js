@@ -137,6 +137,16 @@ describe('Connection', () => {
 
             return expect(connectionConstructor).to.have.been.called;
         });
+
+        it('should default to being not connected', () => {
+            let connection = new Connection({
+                'host': 'abc',
+                'port': 8080,
+                'protocol': 'http'
+            });
+
+            return expect(connection.connected).to.be.false;
+        });
     });
 
     describe('properties', () => {

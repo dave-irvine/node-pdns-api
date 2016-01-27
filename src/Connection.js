@@ -24,6 +24,7 @@ class Connection {
             throw new Error(`Configuration failed validation: \n\n${result.format()}`);
         }
 
+        this.connected = false;
         this.zones = new Zones(this);
         this.records = new Records(this);
     }
