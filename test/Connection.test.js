@@ -3,6 +3,7 @@ import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import proxyquire from 'proxyquire';
+import Promise from 'bluebird';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -96,13 +97,26 @@ describe('Connection', () => {
                     return new Connection(configuration);
                 }).to.throw('Property @.protocol: must match [/^https?$/]');
             });
+
+            it('should throw an error if `key` property is missing', () => {
+                let configuration = {
+                    'host': 'abc',
+                    'port': 8080,
+                    'protocol': 'http'
+                };
+
+                return expect(() => {
+                    return new Connection(configuration);
+                }).to.throw('Property @.key: is missing and not optional');
+            });
         });
 
         it('should return a Connection instance if the configuration object passes validation', () => {
             let connection = new Connection({
                 'host': 'abc',
                 'port': 8080,
-                'protocol': 'http'
+                'protocol': 'http',
+                'key': 'abc'
             });
 
             return expect(connection).to.be.an.instanceOf(Connection);
@@ -117,7 +131,8 @@ describe('Connection', () => {
             let connection = new Connection({
                 'host': 'abc',
                 'port': 8080,
-                'protocol': 'http'
+                'protocol': 'http',
+                'key': 'abc'
             });
 
             return expect(connectionConstructor).to.have.been.called;
@@ -132,7 +147,8 @@ describe('Connection', () => {
             let connection = new Connection({
                 'host': 'abc',
                 'port': 8080,
-                'protocol': 'http'
+                'protocol': 'http',
+                'key': 'abc'
             });
 
             return expect(connectionConstructor).to.have.been.called;
@@ -142,7 +158,8 @@ describe('Connection', () => {
             let connection = new Connection({
                 'host': 'abc',
                 'port': 8080,
-                'protocol': 'http'
+                'protocol': 'http',
+                'key': 'abc'
             });
 
             return expect(connection.connected).to.be.false;
@@ -153,7 +170,8 @@ describe('Connection', () => {
         const configuration = {
             'host': 'abc',
             'port': 8080,
-            'protocol': 'http'
+            'protocol': 'http',
+            'key': 'abc'
         };
 
         let connection;

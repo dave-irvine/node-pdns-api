@@ -1,6 +1,9 @@
 import inspector from 'schema-inspector';
+import Promise from 'bluebird';
+
 let Records = require('./Records');
 let Zones = require('./Zones');
+let request = require('request');
 
 import dbg from 'debug';
 let debug = dbg('pdns-api:Connection');
@@ -14,7 +17,8 @@ class Connection {
             properties: {
                 host: { type: 'string', minLength: 3 },
                 port: { type: 'number', minLength: 1 },
-                protocol: { type: 'string', pattern: /^https?$/ }
+                protocol: { type: 'string', pattern: /^https?$/ },
+                key: { type: 'string', minLength: 1 }
             }
         };
 
