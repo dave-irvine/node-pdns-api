@@ -4,7 +4,6 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import proxyquire from 'proxyquire';
 
-
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
