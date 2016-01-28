@@ -89,6 +89,7 @@ class Connection {
 
                 this.zones_url = server.zones_url;
                 this.connected = true;
+
                 return resolve();
             });
         });

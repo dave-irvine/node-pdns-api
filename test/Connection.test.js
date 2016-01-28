@@ -291,5 +291,24 @@ describe('Connection', () => {
                 return expect(connection.zones_url).to.equal(expectedZonesURL);
             });
         });
+
+        it('should set the Connections connected state to true', () => {
+            requestStub.yields(null, null, [
+                validServer
+            ]);
+
+            return connection.connect()
+            .then(() => {
+                return expect(connection.connected).to.equal(true);
+            });
+        });
+
+        it('should resolve when the connection succeeds', () => {
+            requestStub.yields(null, null, [
+                validServer
+            ]);
+
+            return expect(connection.connect()).to.eventually.be.fulfilled;
+        });
     });
 });
