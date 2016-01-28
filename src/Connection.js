@@ -35,19 +35,26 @@ class Connection {
         this.records = new Records(this);
     }
 
-    connect() {
+    get(url) {
+        let err;
+
         return new Promise((resolve, reject) => {
-            let url = `${this.baseURL}/servers`;
+            if (!url) {
+                err = new Error('url must be supplied');
+                return reject(err);
+            }
 
             let options = {
                 url,
                 headers: {
                     'X-API-Key': this.config.key
-                }
+                },
+                method: 'GET'
             };
 
             request(options, (error, response, body) => {
                 let err = error;
+
                 if (error) {
                     if (response && response.statusCode === 401) {
                         err = new Error('Unauthorised');
@@ -56,7 +63,21 @@ class Connection {
                     return reject(err);
                 }
 
-                let servers = body;
+                return resolve(body);
+            });
+        });
+    }
+
+    connect() {
+        debug(`connect()`);
+
+        return new Promise((resolve, reject) => {
+            let url = `${this.baseURL}/servers`;
+
+            this.get(url)
+            .then((body) => {
+                let err,
+                    servers = body;
 
                 const serversSchema = {
                     type: 'array',
@@ -91,6 +112,9 @@ class Connection {
                 this.connected = true;
 
                 return resolve();
+            })
+            .catch((e) => {
+                return reject(e);
             });
         });
     }

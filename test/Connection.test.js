@@ -193,6 +193,90 @@ describe('Connection', () => {
         });
     });
 
+    describe('get()', () => {
+        const configuration = {
+            'host': 'abc',
+            'port': 8080,
+            'protocol': 'http',
+            'key': 'abcd'
+        };
+
+        let connection,
+            requestStub;
+
+        before(() => {
+            requestStub = sinon.stub();
+
+            Connection = proxyquire('../lib/Connection', {
+                'request': requestStub
+            });
+        });
+
+        beforeEach(() => {
+            connection = new Connection(configuration);
+        });
+
+        it('should return a Promise', () => {
+            return expect(connection.get()).to.be.an.instanceOf(Promise);
+        });
+
+        it('should reject if not passed a URL', () => {
+            return expect(connection.get()).to.eventually.be.rejectedWith('url must be supplied');
+        });
+
+        it('should use the `GET` HTTP method', () => {
+            let expectedMethod = 'GET';
+            requestStub.yields(null, null, null);
+
+            return connection.get('/')
+            .then(() => {
+                return expect(requestStub).to.have.been.calledWith(sinon.match({
+                    method: expectedMethod
+                }));
+            });
+        });
+
+        it('should use the configured `key` for Authentication', () => {
+            let expectedAuthHeader = configuration.key;
+            requestStub.yields(null, null, null);
+
+            return connection.get('/')
+            .then(() => {
+                return expect(requestStub).to.have.been.calledWith(sinon.match({
+                    headers: sinon.match({
+                        'X-API-Key': expectedAuthHeader
+                    })
+                }));
+            });
+        });
+
+        it('should reject if Authentication fails', () => {
+            requestStub.yields(true, { statusCode: 401 }, null);
+
+            return expect(connection.get('/')).to.eventually.be.rejectedWith('Unauthorised');
+        });
+
+        it('should reject if the network connection fails', () => {
+            let err = new Error('connect ECONNREFUSED');
+            err.code = 'ECONNREFUSED';
+
+            requestStub.yields(err, null, null);
+
+            return expect(connection.get('/')).to.eventually.be.rejectedWith(err);
+        });
+
+        it('should resolve with the body response when the connection succeeds', () => {
+            let expectedBody = 'abcd';
+
+            requestStub.yields(null, null, expectedBody);
+
+            return connection.get('/')
+            .then((body) => {
+                return expect(body).to.deep.equal(expectedBody);
+            });
+        });
+    });
+
     describe('connect()', () => {
         const configuration = {
             'host': 'abc',
@@ -231,26 +315,6 @@ describe('Connection', () => {
             return expect(connection.connect()).to.be.an.instanceOf(Promise);
         });
 
-        it('should use the configured `key` for Authentication', () => {
-            let expectedAuthHeader = configuration.key;
-            requestStub.yields(null, null, [validServer]);
-
-            return connection.connect()
-            .then(() => {
-                return expect(requestStub).to.have.been.calledWith(sinon.match({
-                    headers: sinon.match({
-                        'X-API-Key': expectedAuthHeader
-                    })
-                }));
-            });
-        });
-
-        it('should reject if Authentication fails', () => {
-            requestStub.yields(true, { statusCode: 401 }, null);
-
-            return expect(connection.connect()).to.eventually.be.rejectedWith('Unauthorised');
-        });
-
         it('should connect to `/servers` endpoint to fetch server configuration', () => {
             let expectedURL = `${configuration.protocol}://${configuration.host}:${configuration.port}/servers`;
             requestStub.yields(null, null, [validServer]);
@@ -261,15 +325,6 @@ describe('Connection', () => {
                     url: expectedURL
                 }));
             });
-        });
-
-        it('should reject if connecting fails', () => {
-            let err = new Error('connect ECONNREFUSED');
-            err.code = 'ECONNREFUSED';
-
-            requestStub.yields(err, null, null);
-
-            return expect(connection.connect()).to.eventually.be.rejectedWith(err);
         });
 
         it('should reject if the server connected to does not return an expected result', () => {
