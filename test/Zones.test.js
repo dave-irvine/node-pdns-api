@@ -9,8 +9,67 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('Zones', () => {
+    const configuration = {
+        'host': 'abc',
+        'port': 8080,
+        'protocol': 'http',
+        'key': 'abcd'
+    };
+
     let Connection,
         Zones;
+
+    let connection,
+        requestStub,
+        validServer,
+        validZone,
+        zones;
+
+    before(() => {
+        Zones = require('../lib/Zones');
+
+        validServer = {
+            'type': 'Server',
+            'id': 'localhost',
+            'url': '/servers/localhost',
+            'daemon_type': 'authoritative',
+            'version': '3.4.7',
+            'config_url': '/servers/localhost/config{/config_setting}',
+            'zones_url': '/servers/localhost/zones{/zone}'
+        };
+
+        validZone = {
+            'id': 'test.net.',
+            'url': '/servers/localhost/zones/test.net.',
+            'name': 'test.net',
+            'kind': 'Master',
+            'dnssec': false,
+            'account': '',
+            'masters': [],
+            'serial': 1970010101,
+            'notified_serial': 0,
+            'last_check': 0,
+            'records': []
+        };
+    });
+
+    beforeEach((done) => {
+        requestStub = sinon.stub();
+
+        Connection = proxyquire('../lib/Connection', {
+            'request': requestStub
+        });
+
+        requestStub.yields(null, null, [validServer]);
+
+        connection = new Connection(configuration);
+        zones = new Zones(connection);
+
+        connection.connect()
+        .then(() => {
+            done();
+        });
+    });
 
     describe('constructor()', () => {
         beforeEach(() => {
@@ -35,64 +94,6 @@ describe('Zones', () => {
     });
 
     describe('list()', () => {
-        const configuration = {
-            'host': 'abc',
-            'port': 8080,
-            'protocol': 'http',
-            'key': 'abcd'
-        };
-
-        let connection,
-            requestStub,
-            validServer,
-            validZone,
-            zones;
-
-        before(() => {
-            requestStub = sinon.stub();
-
-            Connection = proxyquire('../lib/Connection', {
-                'request': requestStub
-            });
-
-            Zones = require('../lib/Zones');
-
-            validServer = {
-                'type': 'Server',
-                'id': 'localhost',
-                'url': '/servers/localhost',
-                'daemon_type': 'authoritative',
-                'version': '3.4.7',
-                'config_url': '/servers/localhost/config{/config_setting}',
-                'zones_url': '/servers/localhost/zones{/zone}'
-            };
-
-            validZone = {
-                'id': 'test.net.',
-                'url': '/servers/localhost/zones/test.net.',
-                'name': 'test.net',
-                'kind': 'Master',
-                'dnssec': false,
-                'account': '',
-                'masters': [],
-                'serial': 1970010101,
-                'notified_serial': 0,
-                'last_check': 0
-            };
-        });
-
-        beforeEach((done) => {
-            requestStub.yields(null, null, [validServer]);
-
-            connection = new Connection(configuration);
-            zones = new Zones(connection);
-
-            connection.connect()
-            .then(() => {
-                done();
-            });
-        });
-
         it('should return a Promise', () => {
             return expect(zones.list()).to.be.an.instanceOf(Promise);
         });
