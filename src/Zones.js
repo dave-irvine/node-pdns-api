@@ -22,7 +22,7 @@ class Zones {
             err;
 
         return new Promise((resolve, reject) => {
-            let url = `${connection.baseURL}${connection.zones_url.replace('{/zone}', '')}`;
+            let url = `${connection.getZonesUrl().replace('{/zone}', '')}`;
 
             connection.get(url)
             .then((body) => {
@@ -77,7 +77,7 @@ class Zones {
                 return reject(err);
             }
 
-            let url = `${connection.baseURL}${connection.zones_url.replace('{/zone}', '/' + zone)}`;
+            let url = `${connection.getZonesUrl().replace('{/zone}', '/' + zone)}`;
 
             connection.get(url)
             .then((body) => {
