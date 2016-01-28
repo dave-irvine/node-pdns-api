@@ -239,6 +239,18 @@ describe('Connection', () => {
             });
         });
 
+        it('should set the `json` header to true', () => {
+            let expectedJSONHeader = true;
+            requestStub.yields(null, null, null);
+
+            return connection.get('/')
+            .then(() => {
+                return expect(requestStub).to.have.been.calledWith(sinon.match({
+                    json: expectedJSONHeader
+                }));
+            });
+        });
+
         it('should use the configured `key` for Authentication', () => {
             let expectedAuthHeader = configuration.key;
             requestStub.yields(null, null, null);

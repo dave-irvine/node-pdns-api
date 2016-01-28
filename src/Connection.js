@@ -70,7 +70,8 @@ class Connection {
                 headers: {
                     'X-API-Key': this.config.key
                 },
-                method: 'GET'
+                method: 'GET',
+                json: true
             };
 
             request(options, (error, response, body) => {
