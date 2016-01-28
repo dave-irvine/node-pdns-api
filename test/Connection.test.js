@@ -19,7 +19,7 @@ describe('Connection', () => {
         it('should throw an error if not passed a configuration object', () => {
             return expect(() => {
                 return new Connection();
-            }).to.throw('Configuration failed validation: ');
+            }).to.throw('configuration must be supplied');
         });
 
         it('should throw an error if the configuration object fails validation', () => {

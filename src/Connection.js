@@ -12,6 +12,10 @@ class Connection {
     constructor(config) {
         debug(`constructor(${config})`);
 
+        if (!config) {
+            throw new Error('configuration must be supplied');
+        }
+
         const validation = {
             type: 'object',
             properties: {
