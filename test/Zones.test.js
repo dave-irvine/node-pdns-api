@@ -97,7 +97,7 @@ describe('Zones', () => {
             return expect(zones.list()).to.be.an.instanceOf(Promise);
         });
 
-        it('should connect to `/zones` endpoint to fetch server configuration', () => {
+        it('should connect to `/zones` endpoint to fetch zone details', () => {
             requestStub.yields(null, null, [validZone]);
             let expectedURL = `${configuration.protocol}://${configuration.host}:${configuration.port}/servers/localhost/zones`;
 
