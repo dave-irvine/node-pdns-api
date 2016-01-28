@@ -239,7 +239,7 @@ describe('Connection', () => {
             });
         });
 
-        it('should set the `json` header to true', () => {
+        it('should set the `json` option to true', () => {
             let expectedJSONHeader = true;
             requestStub.yields(null, null, null);
 
