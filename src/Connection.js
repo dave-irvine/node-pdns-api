@@ -36,6 +36,8 @@ class Connection {
     }
 
     get(url) {
+        debug(`get(${url})`);
+
         let err;
 
         return new Promise((resolve, reject) => {
