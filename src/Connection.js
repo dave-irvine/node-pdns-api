@@ -78,6 +78,7 @@ class Connection {
 
         return new Promise((resolve, reject) => {
             let url = `${this.baseURL}/servers`;
+            this.connected = true;
 
             this.get(url)
             .then((body) => {
@@ -108,7 +109,7 @@ class Connection {
                 if (!result.valid) {
                     err = new Error(`API returned invalid results: \n\n${result.format()}`);
 
-                    return reject(err);
+                    throw err;
                 }
 
                 let server = servers[0];
@@ -119,6 +120,7 @@ class Connection {
                 return resolve();
             })
             .catch((e) => {
+                this.connected = false;
                 return reject(e);
             });
         });

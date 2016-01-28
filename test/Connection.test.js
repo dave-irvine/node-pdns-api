@@ -339,6 +339,15 @@ describe('Connection', () => {
             return expect(connection.connect()).to.eventually.be.rejectedWith('API returned invalid results');
         });
 
+        it('should set the Connections connected state to false if rejected', () => {
+            requestStub.yields(null, null, null);
+
+            return connection.connect()
+            .catch(() => {
+                return expect(connection.connected).to.equal(false);
+            });
+        });
+
         it('should store the zones url for the connected server', () => {
             let expectedZonesURL = 'abcd';
 
