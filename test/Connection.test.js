@@ -214,6 +214,7 @@ describe('Connection', () => {
 
         beforeEach(() => {
             connection = new Connection(configuration);
+            connection.connected = true;
         });
 
         it('should return a Promise', () => {
@@ -222,6 +223,11 @@ describe('Connection', () => {
 
         it('should reject if not passed a URL', () => {
             return expect(connection.get()).to.eventually.be.rejectedWith('url must be supplied');
+        });
+
+        it('should reject if not connected', () => {
+            connection.connected = false;
+            return expect(connection.get('/')).to.eventually.be.rejectedWith('Connection is not connected');
         });
 
         it('should use the `GET` HTTP method', () => {

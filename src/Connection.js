@@ -44,6 +44,11 @@ class Connection {
                 return reject(err);
             }
 
+            if (!this.connected) {
+                err = new Error('Connection is not connected');
+                return reject(err);
+            }
+
             let options = {
                 url,
                 headers: {
