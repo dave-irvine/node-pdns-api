@@ -9,7 +9,40 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('Connection', () => {
+    const configuration = {
+        'host': 'abc',
+        'port': 8080,
+        'protocol': 'http',
+        'key': 'abcd'
+    };
+
     let Connection;
+
+    let connection,
+        requestStub,
+        validServer;
+
+    before(() => {
+        requestStub = sinon.stub();
+
+        Connection = proxyquire('../lib/Connection', {
+            'request': requestStub
+        });
+
+        validServer = {
+            'type': 'Server',
+            'id': 'localhost',
+            'url': '/servers/localhost',
+            'daemon_type': 'authoritative',
+            'version': '3.4.7',
+            'config_url': '/servers/localhost/config{/config_setting}',
+            'zones_url': '/servers/localhost/zones{/zone}'
+        }
+    });
+
+    beforeEach(() => {
+        connection = new Connection(configuration);
+    });
 
     describe('constructor()', () => {
         beforeEach(() => {
@@ -167,23 +200,6 @@ describe('Connection', () => {
     });
 
     describe('properties', () => {
-        const configuration = {
-            'host': 'abc',
-            'port': 8080,
-            'protocol': 'http',
-            'key': 'abc'
-        };
-
-        let connection;
-
-        before(() => {
-            Connection = require('../lib/Connection');
-        });
-
-        beforeEach(() => {
-            connection = new Connection(configuration);
-        });
-
         it('should have a `Zones` property', () => {
             return expect(connection).to.have.property('zones');
         });
@@ -194,26 +210,7 @@ describe('Connection', () => {
     });
 
     describe('get()', () => {
-        const configuration = {
-            'host': 'abc',
-            'port': 8080,
-            'protocol': 'http',
-            'key': 'abcd'
-        };
-
-        let connection,
-            requestStub;
-
-        before(() => {
-            requestStub = sinon.stub();
-
-            Connection = proxyquire('../lib/Connection', {
-                'request': requestStub
-            });
-        });
-
         beforeEach(() => {
-            connection = new Connection(configuration);
             connection.connected = true;
         });
 
@@ -284,39 +281,6 @@ describe('Connection', () => {
     });
 
     describe('connect()', () => {
-        const configuration = {
-            'host': 'abc',
-            'port': 8080,
-            'protocol': 'http',
-            'key': 'abcd'
-        };
-
-        let connection,
-            requestStub,
-            validServer;
-
-        before(() => {
-            requestStub = sinon.stub();
-
-            Connection = proxyquire('../lib/Connection', {
-                'request': requestStub
-            });
-
-            validServer = {
-                'type': 'Server',
-                'id': 'localhost',
-                'url': '/servers/localhost',
-                'daemon_type': 'authoritative',
-                'version': '3.4.7',
-                'config_url': '/servers/localhost/config{/config_setting}',
-                'zones_url': '/servers/localhost/zones{/zone}'
-            }
-        });
-
-        beforeEach(() => {
-            connection = new Connection(configuration);
-        });
-
         it('should return a Promise', () => {
             return expect(connection.connect()).to.be.an.instanceOf(Promise);
         });
