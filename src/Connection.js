@@ -39,6 +39,16 @@ class Connection {
         this.records = new Records(this);
     }
 
+    getZonesUrl() {
+        debug(`getZonesUrl()`);
+
+        if (!this.connected) {
+            throw new Error('Connection is not connected');
+        }
+
+        return `${this.baseURL}${this.zones_url}`;
+    }
+
     get(url) {
         debug(`get(${url})`);
 

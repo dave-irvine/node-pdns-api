@@ -345,4 +345,23 @@ describe('Connection', () => {
             return expect(connection.connect()).to.eventually.be.fulfilled;
         });
     });
+
+    describe('getZonesUrl()', () => {
+        it('should reject if Connection is not connected', () => {
+            connection.connected = false;
+            return expect(() => {
+                connection.getZonesUrl()
+            }).to.throw('Connection is not connected');
+        });
+
+        it('should return the zones url', () => {
+            let expectedUrl = `${configuration.protocol}://${configuration.host}:${configuration.port}${validServer.zones_url}`;
+            requestStub.yields(null, null, [validServer]);
+
+            return connection.connect()
+            .then(() => {
+                return expect(connection.getZonesUrl()).to.deep.equal(expectedUrl);
+            })
+        });
+    });
 });
