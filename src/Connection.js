@@ -77,12 +77,15 @@ class Connection {
                 let err = error;
 
                 if (error) {
+                    debug(error);
                     if (response && response.statusCode === 401) {
                         err = new Error('Unauthorised');
                     }
 
                     return reject(err);
                 }
+
+                debug(body);
 
                 return resolve(body);
             });
