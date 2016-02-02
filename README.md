@@ -1,6 +1,6 @@
 # node-pdns-api [![Build Status][Travis Image]][Travis URL] [![Supported PowerDNS][PowerDNS Image]][PowerDNS] [![Dependencies Status][DavidDM Image]][DavidDM URL]
 
-Control your [PowerDNS][] 3.4.x installation via its [API][PowerDNS API] with Node.js.
+Interact with your [PowerDNS][] 3.4.x installation via its [API][PowerDNS API] with Node.js.
 
 ## Installation
 
