@@ -57,6 +57,52 @@ class Records {
             });
         });
     }
+
+    add(zone, record) {
+        debug(`add(${zone}, ${record})`);
+
+        let connection = this.connection,
+            err;
+
+        if (!zone) {
+            err = new Error('zone must be supplied');
+            return Promise.reject(err);
+        }
+
+        if (!record) {
+            err = new Error('record must be supplied');
+            return Promise.reject(err);
+        }
+
+        const recordSchema = {
+            type: 'object',
+            properties: {
+                content: { type: 'string' },
+                name: { type: 'string' },
+                ttl: { type: 'number' },
+                type: { type: 'string' },
+                disabled: { type: 'boolean' },
+                'set-ptr': { type: 'boolean' }
+            }
+        };
+
+        let result = inspector.validate(recordSchema, record);
+
+        if (!result.valid) {
+            err = new Error(`Specified record is invalid: \n\n${result.format()}`);
+
+            return Promise.reject(err);
+        }
+
+        let rrset = {
+            name: record.name,
+            type: record.type,
+            changetype: 'REPLACE',
+            records: [record]
+        };
+
+        return connection.zones.patchRRset(zone, rrset);
+    }
 }
 
 module.exports = Records;

@@ -128,4 +128,28 @@ describe('Records', () => {
             });
         });
     });
+
+    describe('add()', () => {
+        it('should return a Promise', () => {
+            return expect(records.add()).to.be.an.instanceOf(Promise);
+        });
+
+        it('should reject if not passed a zone', () => {
+            return expect(records.add()).to.eventually.be.rejectedWith('zone must be supplied');
+        });
+
+        it('should reject if not passed a record', () => {
+            return expect(records.add('abcd')).to.eventually.be.rejectedWith('record must be supplied');
+        });
+
+        it('should reject if not passed a valid record', () => {
+            return expect(records.add('abcd', {})).to.eventually.be.rejectedWith('Specified record is invalid');
+        });
+
+        it('should resolve if passed a valid zone and record', () => {
+            validRecord['set-ptr'] = false;
+
+            return expect(records.add('abcd', validRecord)).to.eventually.be.fulfilled;
+        });
+    });
 });
