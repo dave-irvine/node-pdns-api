@@ -102,6 +102,24 @@ class Connection {
         return this.makeRequest(options);
     }
 
+    patch(url) {
+        debug(`patch(${url})`);
+
+        let err;
+
+        if (!url) {
+            err = new Error('url must be supplied');
+            return Promise.reject(err);
+        }
+
+        let options = {
+            url,
+            method: 'PATCH'
+        };
+
+        return this.makeRequest(options);
+    }
+
     connect() {
         debug(`connect()`);
 

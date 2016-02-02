@@ -235,7 +235,6 @@ describe('Connection', () => {
             });
         });
 
-
         it('should use the configured `key` for Authentication', () => {
             let expectedAuthHeader = configuration.key;
             requestStub.yields(null, null, null);
@@ -295,6 +294,32 @@ describe('Connection', () => {
             requestStub.yields(null, null, null);
 
             return connection.get('/')
+            .then(() => {
+                return expect(requestStub).to.have.been.calledWith(sinon.match({
+                    method: expectedMethod
+                }));
+            });
+        });
+    });
+
+    describe('patch()', () => {
+        beforeEach(() => {
+            connection.connected = true;
+        });
+
+        it('should return a Promise', () => {
+            return expect(connection.patch()).to.be.an.instanceOf(Promise);
+        });
+
+        it('should reject if not passed a URL', () => {
+            return expect(connection.patch()).to.eventually.be.rejectedWith('url must be supplied');
+        });
+
+        it('should use the `PATCH` HTTP method', () => {
+            let expectedMethod = 'PATCH';
+            requestStub.yields(null, null, null);
+
+            return connection.patch('/')
             .then(() => {
                 return expect(requestStub).to.have.been.calledWith(sinon.match({
                     method: expectedMethod
