@@ -250,7 +250,7 @@ describe('Connection', () => {
         });
 
         it('should reject if Authentication fails', () => {
-            requestStub.yields(true, { statusCode: 401 }, null);
+            requestStub.yields(false, { statusCode: 401 }, null);
 
             return expect(connection.makeRequest({})).to.eventually.be.rejectedWith('Unauthorised');
         });
@@ -364,6 +364,12 @@ describe('Connection', () => {
                     url: expectedURL
                 }));
             });
+        });
+
+        it('should reject if Authentication fails', () => {
+            requestStub.yields(false, { statusCode: 401 }, null);
+
+            return expect(connection.connect({})).to.eventually.be.rejectedWith('Unauthorised');
         });
 
         it('should reject if the server connected to does not return an expected result', () => {

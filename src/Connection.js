@@ -70,10 +70,12 @@ class Connection {
 
                 if (error) {
                     debug(error);
-                    if (response && response.statusCode === 401) {
-                        err = new Error('Unauthorised');
-                    }
 
+                    return reject(err);
+                }
+
+                if (response && response.statusCode === 401) {
+                    err = new Error('Unauthorised');
                     return reject(err);
                 }
 
