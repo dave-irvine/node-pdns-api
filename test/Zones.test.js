@@ -98,11 +98,6 @@ describe('Zones', () => {
             return expect(zones.list()).to.be.an.instanceOf(Promise);
         });
 
-        it('should reject if Connection is not connected', () => {
-            connection.connected = false;
-            return expect(zones.list()).to.eventually.be.rejectedWith('Connection is not connected');
-        });
-
         it('should connect to `/zones` endpoint to fetch zone details', () => {
             requestStub.yields(null, null, [validZone]);
             let expectedURL = `${configuration.protocol}://${configuration.host}:${configuration.port}/servers/localhost/zones`;
@@ -150,11 +145,6 @@ describe('Zones', () => {
 
         it('should reject if not passed a zone', () => {
             return expect(zones.fetch()).to.eventually.be.rejectedWith('zone must be supplied');
-        });
-
-        it('should reject if Connection is not connected', () => {
-            connection.connected = false;
-            return expect(zones.fetch(validZone.id)).to.eventually.be.rejectedWith('Connection is not connected');
         });
 
         it('should connect to correct zone endpoint to fetch zone records', () => {
