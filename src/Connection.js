@@ -49,29 +49,20 @@ class Connection {
         return `${this.baseURL}${this.zones_url}`;
     }
 
-    get(url) {
-        debug(`get(${url})`);
+    makeRequest(options) {
+        debug(`makeRequest(${options})`);
 
         let err;
 
         return new Promise((resolve, reject) => {
-            if (!url) {
-                err = new Error('url must be supplied');
-                return reject(err);
-            }
-
             if (!this.connected) {
                 err = new Error('Connection is not connected');
                 return reject(err);
             }
 
-            let options = {
-                url,
-                headers: {
-                    'X-API-Key': this.config.key
-                },
-                method: 'GET',
-                json: true
+            options.json = true;
+            options.headers = {
+                'X-API-Key': this.config.key
             };
 
             request(options, (error, response, body) => {
@@ -91,6 +82,24 @@ class Connection {
                 return resolve(body);
             });
         });
+    }
+
+    get(url) {
+        debug(`get(${url})`);
+
+        let err;
+
+        if (!url) {
+            err = new Error('url must be supplied');
+            return Promise.reject(err);
+        }
+
+        let options = {
+            url,
+            method: 'GET'
+        };
+
+        return this.makeRequest(options);
     }
 
     connect() {

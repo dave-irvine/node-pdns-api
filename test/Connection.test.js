@@ -209,6 +209,74 @@ describe('Connection', () => {
         });
     });
 
+    describe('makeRequest()', () => {
+        beforeEach(() => {
+            connection.connected = true;
+        });
+
+        it('should return a Promise', () => {
+            return expect(connection.makeRequest()).to.be.an.instanceOf(Promise);
+        });
+
+        it('should reject if not connected', () => {
+            connection.connected = false;
+            return expect(connection.makeRequest({})).to.eventually.be.rejectedWith('Connection is not connected');
+        });
+
+        it('should set the `json` option to true', () => {
+            let expectedJSONHeader = true;
+            requestStub.yields(null, null, null);
+
+            return connection.makeRequest({})
+            .then(() => {
+                return expect(requestStub).to.have.been.calledWith(sinon.match({
+                    json: expectedJSONHeader
+                }));
+            });
+        });
+
+
+        it('should use the configured `key` for Authentication', () => {
+            let expectedAuthHeader = configuration.key;
+            requestStub.yields(null, null, null);
+
+            return connection.makeRequest({})
+            .then(() => {
+                return expect(requestStub).to.have.been.calledWith(sinon.match({
+                    headers: sinon.match({
+                        'X-API-Key': expectedAuthHeader
+                    })
+                }));
+            });
+        });
+
+        it('should reject if Authentication fails', () => {
+            requestStub.yields(true, { statusCode: 401 }, null);
+
+            return expect(connection.makeRequest({})).to.eventually.be.rejectedWith('Unauthorised');
+        });
+
+        it('should reject if the network connection fails', () => {
+            let err = new Error('connect ECONNREFUSED');
+            err.code = 'ECONNREFUSED';
+
+            requestStub.yields(err, null, null);
+
+            return expect(connection.makeRequest({})).to.eventually.be.rejectedWith(err);
+        });
+
+        it('should resolve with the body response when the connection succeeds', () => {
+            let expectedBody = 'abcd';
+
+            requestStub.yields(null, null, expectedBody);
+
+            return connection.makeRequest({})
+            .then((body) => {
+                return expect(body).to.deep.equal(expectedBody);
+            });
+        });
+    });
+
     describe('get()', () => {
         beforeEach(() => {
             connection.connected = true;
@@ -222,11 +290,6 @@ describe('Connection', () => {
             return expect(connection.get()).to.eventually.be.rejectedWith('url must be supplied');
         });
 
-        it('should reject if not connected', () => {
-            connection.connected = false;
-            return expect(connection.get('/')).to.eventually.be.rejectedWith('Connection is not connected');
-        });
-
         it('should use the `GET` HTTP method', () => {
             let expectedMethod = 'GET';
             requestStub.yields(null, null, null);
@@ -236,58 +299,6 @@ describe('Connection', () => {
                 return expect(requestStub).to.have.been.calledWith(sinon.match({
                     method: expectedMethod
                 }));
-            });
-        });
-
-        it('should set the `json` option to true', () => {
-            let expectedJSONHeader = true;
-            requestStub.yields(null, null, null);
-
-            return connection.get('/')
-            .then(() => {
-                return expect(requestStub).to.have.been.calledWith(sinon.match({
-                    json: expectedJSONHeader
-                }));
-            });
-        });
-
-        it('should use the configured `key` for Authentication', () => {
-            let expectedAuthHeader = configuration.key;
-            requestStub.yields(null, null, null);
-
-            return connection.get('/')
-            .then(() => {
-                return expect(requestStub).to.have.been.calledWith(sinon.match({
-                    headers: sinon.match({
-                        'X-API-Key': expectedAuthHeader
-                    })
-                }));
-            });
-        });
-
-        it('should reject if Authentication fails', () => {
-            requestStub.yields(true, { statusCode: 401 }, null);
-
-            return expect(connection.get('/')).to.eventually.be.rejectedWith('Unauthorised');
-        });
-
-        it('should reject if the network connection fails', () => {
-            let err = new Error('connect ECONNREFUSED');
-            err.code = 'ECONNREFUSED';
-
-            requestStub.yields(err, null, null);
-
-            return expect(connection.get('/')).to.eventually.be.rejectedWith(err);
-        });
-
-        it('should resolve with the body response when the connection succeeds', () => {
-            let expectedBody = 'abcd';
-
-            requestStub.yields(null, null, expectedBody);
-
-            return connection.get('/')
-            .then((body) => {
-                return expect(body).to.deep.equal(expectedBody);
             });
         });
     });
