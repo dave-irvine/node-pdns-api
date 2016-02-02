@@ -21,12 +21,20 @@ describe('Zones', () => {
 
     let connection,
         requestStub,
+        validRRset,
         validServer,
         validZone,
         zones;
 
     before(() => {
         Zones = require('../lib/Zones');
+
+        validRRset = {
+            'name': 'abcd.test.net',
+            'type': 'A',
+            'changetype': 'REPLACE',
+            'records': []
+        };
 
         validServer = {
             'type': 'Server',
@@ -183,6 +191,48 @@ describe('Zones', () => {
             return zones.fetch(validZone.id)
             .then((zoneList) => {
                 return expect(zoneList).to.deep.equal(validZone);
+            });
+        });
+    });
+
+    describe('patchRRset()', () => {
+        it('should return a Promise', () => {
+            return expect(zones.patchRRset()).to.be.an.instanceOf(Promise);
+        });
+
+        it('should reject if not passed a zone', () => {
+            return expect(zones.patchRRset()).to.eventually.be.rejectedWith('zone must be supplied');
+        });
+
+        it('should reject if not passed a rrset', () => {
+            return expect(zones.patchRRset('abcd')).to.eventually.be.rejectedWith('rrset must be supplied');
+        });
+
+        it('should reject if not passed a valid rrset', () => {
+            return expect(zones.patchRRset('abcd', {})).to.eventually.be.rejectedWith('Specified rrset is invalid');
+        });
+
+        it('should connect to correct zone endpoint to patch zone records', () => {
+            requestStub.yields(null, null, validZone);
+            let expectedURL = `${configuration.protocol}://${configuration.host}:${configuration.port}/servers/localhost/zones/${validZone.id}`;
+
+            return zones.patchRRset(validZone.id, validRRset)
+            .then(() => {
+                return expect(requestStub).to.have.been.calledWith(sinon.match({
+                    url: expectedURL
+                }));
+            });
+        });
+
+        it('should use a PATCH request', () => {
+            let expectedMethod = 'PATCH';
+            requestStub.yields(null, null, validZone);
+
+            return zones.patchRRset(validZone.id, validRRset)
+            .then(() => {
+                return expect(requestStub).to.have.been.calledWith(sinon.match({
+                    method: expectedMethod
+                }));
             });
         });
     });

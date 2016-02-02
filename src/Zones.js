@@ -117,6 +117,45 @@ class Zones {
             })
         });
     }
+
+    patchRRset(zone, rrset) {
+        debug(`fetch(${zone})`);
+
+        let connection = this.connection,
+            err;
+
+        if (!zone) {
+            err = new Error('zone must be supplied');
+            return Promise.reject(err);
+        }
+
+        if (!rrset) {
+            err = new Error('rrset must be supplied');
+            return Promise.reject(err);
+        }
+
+        let url = `${connection.getZonesUrl().replace('{/zone}', '/' + zone)}`;
+
+        const rrsetSchema = {
+            type: 'object',
+            properties: {
+                name: { type: 'string' },
+                type: { type: 'string' },
+                changetype: { type: 'string' },
+                records: { type: 'array' }
+            }
+        };
+
+        let result = inspector.validate(rrsetSchema, rrset);
+
+        if (!result.valid) {
+            err = new Error(`Specified rrset is invalid: \n\n${result.format()}`);
+
+            return Promise.reject(err);
+        }
+
+        return connection.patch(url, rrset);
+    }
 }
 
 module.exports = Zones;
