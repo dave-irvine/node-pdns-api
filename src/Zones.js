@@ -154,7 +154,9 @@ class Zones {
             return Promise.reject(err);
         }
 
-        return connection.patch(url, rrset);
+        return connection.patch(url, {
+            rrsets: [rrset]
+        });
     }
 }
 

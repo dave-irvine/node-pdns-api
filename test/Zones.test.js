@@ -235,5 +235,18 @@ describe('Zones', () => {
                 }));
             });
         });
+
+        it('should correctly pass an `rrsets` PATCH to be applied', () => {
+            requestStub.yields(null, null, null);
+
+            return zones.patchRRset(validZone.id, validRRset)
+            .then(() => {
+                return expect(requestStub).to.have.been.calledWith(sinon.match({
+                    body: sinon.match({
+                        rrsets: sinon.match.any
+                    })
+                }));
+            });
+        });
     });
 });
