@@ -102,7 +102,7 @@ class Connection {
         return this.makeRequest(options);
     }
 
-    patch(url) {
+    patch(url, patchToApply) {
         debug(`patch(${url})`);
 
         let err;
@@ -112,9 +112,15 @@ class Connection {
             return Promise.reject(err);
         }
 
+        if (!patchToApply) {
+            err = new Error('patch must be supplied');
+            return Promise.reject(err);
+        }
+
         let options = {
             url,
-            method: 'PATCH'
+            method: 'PATCH',
+            body: patchToApply
         };
 
         return this.makeRequest(options);

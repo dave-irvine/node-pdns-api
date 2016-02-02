@@ -315,14 +315,35 @@ describe('Connection', () => {
             return expect(connection.patch()).to.eventually.be.rejectedWith('url must be supplied');
         });
 
+        it('should reject if not passed a patch to apply', () => {
+            requestStub.yields(null, null, null);
+
+            return expect(connection.patch('abcd')).to.eventually.be.rejectedWith('patch must be supplied');
+        });
+
         it('should use the `PATCH` HTTP method', () => {
             let expectedMethod = 'PATCH';
             requestStub.yields(null, null, null);
 
-            return connection.patch('/')
+            return connection.patch('/', {})
             .then(() => {
                 return expect(requestStub).to.have.been.calledWith(sinon.match({
                     method: expectedMethod
+                }));
+            });
+        });
+
+        it('should set the passed patch to the body parameter', () => {
+            let expectedBody = {
+                test: 'abcd'
+            };
+
+            requestStub.yields(null, null, null);
+
+            return connection.patch('/', expectedBody)
+            .then(() => {
+                return expect(requestStub).to.have.been.calledWith(sinon.match({
+                    body: expectedBody
                 }));
             });
         });
